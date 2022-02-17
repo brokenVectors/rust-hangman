@@ -1,10 +1,13 @@
 use std::io;
 use rand::Rng;
 
-fn init_clue(clue: &mut String, word: &String) {
+static word_list: [&str; 7] = ["house", "hornets", "people", "troglodyte", "personalities", "celebrity", "caffeine"];
+fn init_clue(word: &String) -> String {
+    let mut clue = String::new();
     for _ in 0..word.len() {
         clue.push_str("_");
     }
+    return clue;
 }
 
 fn clear_terminal() {
@@ -23,21 +26,16 @@ fn win(user_guess: &String) {
     println!("Nice! That's the word. You win! (The word was '{}')", user_guess);
 }
 
-fn random_word(word_list: &[&str]) -> String {
-    return String::from(word_list[rand::thread_rng().gen_range(0..word_list.len())]);
-}
-
 fn main() {
     clear_terminal();
-    let word_list: [&str; 7] = ["house", "hornets", "people", "troglodyte", "personalities", "celebrity", "caffeine"];
-    let secret_word: String = random_word(&word_list);
+    
+    let secret_word: String = String::from(word_list[rand::random::<usize>() % word_list.len()]);
     let mut guesses = 6;
     let mut failed_letters = String::new();
 
     println!("Let's play some Hangman!");
 
-    let mut total_clue = String::new();
-    init_clue(&mut total_clue, &secret_word);
+    let mut total_clue = init_clue(&secret_word);
 
     loop {
         clear_terminal();

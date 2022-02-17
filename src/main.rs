@@ -1,7 +1,6 @@
 use std::io;
-use rand::Rng;
 
-static word_list: [&str; 7] = ["house", "hornets", "people", "troglodyte", "personalities", "celebrity", "caffeine"];
+static WORD_LIST: [&str; 7] = ["house", "hornets", "people", "troglodyte", "personalities", "celebrity", "caffeine"];
 fn init_clue(word: &String) -> String {
     let mut clue = String::new();
     for _ in 0..word.len() {
@@ -11,11 +10,15 @@ fn init_clue(word: &String) -> String {
 }
 
 fn clear_terminal() {
-    print!("{}[2J", 27 as char);
+    print!("\x1b[2J");
 }
 
 fn game_over(secret_word: String) {
     println!("Game over! You ran out of guesses. The word was: {}", secret_word);
+}
+
+fn not_the_word(guesses: i32) {
+    println!("Whoops! That's not the word. {} guesses left!", guesses);
 }
 
 fn display_game_state(clue: &String, guesses: i32, failed_letters: &String) {
@@ -29,7 +32,7 @@ fn win(user_guess: &String) {
 fn main() {
     clear_terminal();
     
-    let secret_word: String = String::from(word_list[rand::random::<usize>() % word_list.len()]);
+    let secret_word: String = String::from(WORD_LIST[rand::random::<usize>() % WORD_LIST.len()]);
     let mut guesses = 6;
     let mut failed_letters = String::new();
 
@@ -92,7 +95,8 @@ fn main() {
             else {
                 // if they didn't, tell them they didn't
                 guesses -= 1;
-                println!("Whoops! That's not the word. {} guesses left!", guesses);
+                not_the_word(guesses);
+                display_game_state(&total_clue, guesses, &failed_letters);
             }
         }
         

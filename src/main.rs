@@ -15,8 +15,8 @@ fn game_over(secret_word: String) {
     println!("Game over! You ran out of guesses. The word was: {}", secret_word);
 }
 
-fn display_game_state(clue: &String, guesses: i32) {
-    println!("Let's play some Hangman!\n{} {} guesses left!", clue, guesses);
+fn display_game_state(clue: &String, guesses: i32, failed_letters: &String) {
+    println!("Let's play some Hangman!\n{} {} guesses left!\nFailed letters: {}", clue, guesses, failed_letters);
 }
 
 fn win(user_guess: &String) {
@@ -32,6 +32,7 @@ fn main() {
     let word_list: [&str; 7] = ["house", "hornets", "people", "troglodyte", "personalities", "celebrity", "caffeine"];
     let secret_word: String = random_word(&word_list);
     let mut guesses = 6;
+    let mut failed_letters = String::new();
 
     println!("Let's play some Hangman!");
 
@@ -59,23 +60,34 @@ fn main() {
         if user_guess.len() == 1 {
             // display all places where user's proposed letter is
             let mut letter_is_in_word = false;
+            let mut word_is_complete = true;
+
             for (i, c) in secret_word.chars().enumerate() {
+                let char_not_found = total_clue.chars().nth(i).unwrap().to_string().eq("_");
                 if c.to_string() == user_guess {
                     total_clue.replace_range(i..i+1, &user_guess);
                     letter_is_in_word = true;
+                } else if char_not_found {
+                    word_is_complete = false;
                 }
             }
             if !letter_is_in_word {
+                failed_letters.push_str(&format!("{}, ", user_guess));
                 guesses -= 1;
+            }
+            if word_is_complete {
+                display_game_state(&total_clue, guesses, &failed_letters);
+                win(&secret_word);
+                break;
             }
 
             // display current game state
-            display_game_state(&total_clue, guesses);
+            display_game_state(&total_clue, guesses, &failed_letters);
         }
         else {
             // if user guesses correctly, tell them they did
             if secret_word.eq(&user_guess) {
-                display_game_state(&total_clue, guesses);
+                display_game_state(&total_clue, guesses, &failed_letters);
                 win(&user_guess);
                 break;
             }
